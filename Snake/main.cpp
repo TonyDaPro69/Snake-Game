@@ -48,6 +48,7 @@ int main() {
     instructionsForR.setFillColor(sf::Color(255, 215, 0));
     instructionsForR.setPosition(240.f, 110.f);
     instructionsForR.setString("Press 'R' to restart the same difficulty");
+
     // GAME OVER PANEL
     sf::RectangleShape gameOverPanel(sf::Vector2f(500.f, 380.f));
     gameOverPanel.setFillColor(sf::Color(20, 20, 40, 220));
@@ -84,7 +85,37 @@ int main() {
     exitButtonText.setFillColor(sf::Color::Black);
     exitButtonText.setPosition(345.f, 417.f);
 
-    
+    // HOW TO PLAY SCREEN
+    sf::Text howToPlayTitle;
+    howToPlayTitle.setFont(font);
+    howToPlayTitle.setCharacterSize(45);
+    howToPlayTitle.setFillColor(sf::Color(255, 215, 0));
+    howToPlayTitle.setPosition(250.f, 130.f);
+    howToPlayTitle.setString("HOW TO PLAY");
+
+    sf::Text howToPlayText;
+    howToPlayText.setFont(font);
+    howToPlayText.setCharacterSize(24);
+    howToPlayText.setFillColor(sf::Color::White);
+    howToPlayText.setPosition(190.f, 210.f);
+    howToPlayText.setString(
+        "Use W A S D to move the snake around\n\n"
+        "Collect red tiles on the grid to grow\n"
+        "your tail and increase your score\n\n"
+        "Avoid colliding with yourself\n"
+        "or any walls"
+    );
+
+    sf::RectangleShape howToPlayBackButton(sf::Vector2f(210.f, 50.f));
+    howToPlayBackButton.setFillColor(sf::Color(255, 215, 0));
+    howToPlayBackButton.setPosition(295.f, 405.f);
+
+    sf::Text howToPlayBackText;
+    howToPlayBackText.setFont(font);
+    howToPlayBackText.setString("Back to Menu");
+    howToPlayBackText.setCharacterSize(25);
+    howToPlayBackText.setFillColor(sf::Color::Black);
+    howToPlayBackText.setPosition(323.f, 415.f);
 
     int score = 0;
     std::vector<int> highScores;
@@ -94,6 +125,7 @@ int main() {
 
     bool gameOver = false;
     bool showMenu = true;
+    bool showHowToPlay = false;
 
     Menu menu(800.f, 600.f);
 
@@ -113,6 +145,7 @@ int main() {
                 if (event.key.code == sf::Keyboard::Enter) {
                     if (menu.getSelectedIndex() == 0) {
                         showMenu = false;
+                        showHowToPlay = false;
 
                         snake = { {10,10}, {9,10}, {8,10} };
                         direction = { 1, 0 };
@@ -135,6 +168,11 @@ int main() {
                     }
 
                     if (menu.getSelectedIndex() == 2) {
+                        showMenu = false;
+                        showHowToPlay = true;
+                    }
+
+                    if (menu.getSelectedIndex() == 3) {
                         window.close();
                     }
                 }
@@ -154,11 +192,20 @@ int main() {
                         window.close();
                     }
                 }
+
+                if (showHowToPlay) {
+                    sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+                    if (howToPlayBackButton.getGlobalBounds().contains(mousePos)) {
+                        showHowToPlay = false;
+                        showMenu = true;
+                    }
+                }
             }
         }
 
         // Restart
-        if (!showMenu && gameOver && sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
+        if (!showMenu && !showHowToPlay && gameOver && sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
             snake = { {10,10}, {9,10}, {8,10} };
             direction = { 1, 0 };
             food = { rand() % width, rand() % height };
@@ -166,16 +213,16 @@ int main() {
             gameOver = false;
 
             if (menu.getDifficulty() == "Easy")
-                delay = 0.15f;
+                delay = 0.20f;
             if (menu.getDifficulty() == "Medium")
-                delay = 0.10f;
+                delay = 0.15f;
             if (menu.getDifficulty() == "Hard")
-                delay = 0.07f;
+                delay = 0.10f;
 
             clock.restart();
         }
 
-        if (!showMenu && !gameOver) {
+        if (!showMenu && !showHowToPlay && !gameOver) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && direction.y == 0)
                 direction = { 0, -1 };
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && direction.y == 0)
@@ -212,7 +259,7 @@ int main() {
                 if (highScores.size() > 5)
                     highScores.resize(5);
 
-                //updating the speed
+                // updating the speed
                 if (snake[0] == food) {
                     snake.push_back(snake.back());
                     food = { rand() % width, rand() % height };
@@ -248,6 +295,13 @@ int main() {
 
         if (showMenu) {
             menu.draw(window);
+        }
+        else if (showHowToPlay) {
+            window.draw(gameOverPanel);
+            window.draw(howToPlayTitle);
+            window.draw(howToPlayText);
+            window.draw(howToPlayBackButton);
+            window.draw(howToPlayBackText);
         }
         else {
             // Draw game

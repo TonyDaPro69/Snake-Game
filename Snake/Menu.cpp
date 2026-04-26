@@ -25,7 +25,6 @@ Menu::Menu(float width, float height) {
 
     // Subtitle
     subtitleText.setFont(font);
-    //subtitleText.setString("Classic Arcade Mode");
     subtitleText.setCharacterSize(24);
     subtitleText.setFillColor(sf::Color(180, 220, 255));
     subtitleText.setPosition(width / 2.f - 120.f, 190.f);
@@ -33,23 +32,30 @@ Menu::Menu(float width, float height) {
     // Menu item 1
     items[0].setFont(font);
     items[0].setString("> Start Game");
-    items[0].setCharacterSize(38);
+    items[0].setCharacterSize(34);
     items[0].setFillColor(sf::Color(255, 215, 0));
-    items[0].setPosition(width / 2.f - 130.f, 270.f);
+    items[0].setPosition(width / 2.f - 130.f, 250.f);
 
     // Menu item 2
     items[1].setFont(font);
     items[1].setString("Difficulty: " + difficulty);
-    items[1].setCharacterSize(38);
+    items[1].setCharacterSize(34);
     items[1].setFillColor(sf::Color::White);
-    items[1].setPosition(width / 2.f - 120.f, 330.f);
+    items[1].setPosition(width / 2.f - 130.f, 300.f);
 
     // Menu item 3
     items[2].setFont(font);
-    items[2].setString("Exit");
-    items[2].setCharacterSize(38);
+    items[2].setString("How To Play");
+    items[2].setCharacterSize(34);
     items[2].setFillColor(sf::Color::White);
-    items[2].setPosition(width / 2.f - 120.f, 390.f);
+    items[2].setPosition(width / 2.f - 130.f, 350.f);
+
+    // Menu item 4
+    items[3].setFont(font);
+    items[3].setString("Exit");
+    items[3].setCharacterSize(34);
+    items[3].setFillColor(sf::Color::White);
+    items[3].setPosition(width / 2.f - 130.f, 400.f);
 
     // Help text
     helpText.setFont(font);
@@ -58,8 +64,6 @@ Menu::Menu(float width, float height) {
     helpText.setFillColor(sf::Color(210, 210, 210));
     helpText.setPosition(width / 2.f - 130.f, 450.f);
 }
-
-
 
 void Menu::draw(sf::RenderWindow& window) {
     window.draw(panel);
@@ -82,6 +86,8 @@ void Menu::moveUp() {
         if (selectedIndex == 1)
             items[selectedIndex].setString("Difficulty: " + difficulty);
         if (selectedIndex == 2)
+            items[selectedIndex].setString("How To Play");
+        if (selectedIndex == 3)
             items[selectedIndex].setString("Exit");
 
         selectedIndex--;
@@ -93,6 +99,8 @@ void Menu::moveUp() {
         if (selectedIndex == 1)
             items[selectedIndex].setString("> Difficulty: " + difficulty);
         if (selectedIndex == 2)
+            items[selectedIndex].setString("> How To Play");
+        if (selectedIndex == 3)
             items[selectedIndex].setString("> Exit");
     }
 }
@@ -106,6 +114,8 @@ void Menu::moveDown() {
         if (selectedIndex == 1)
             items[selectedIndex].setString("Difficulty: " + difficulty);
         if (selectedIndex == 2)
+            items[selectedIndex].setString("How To Play");
+        if (selectedIndex == 3)
             items[selectedIndex].setString("Exit");
 
         selectedIndex++;
@@ -117,6 +127,8 @@ void Menu::moveDown() {
         if (selectedIndex == 1)
             items[selectedIndex].setString("> Difficulty: " + difficulty);
         if (selectedIndex == 2)
+            items[selectedIndex].setString("> How To Play");
+        if (selectedIndex == 3)
             items[selectedIndex].setString("> Exit");
     }
 }
