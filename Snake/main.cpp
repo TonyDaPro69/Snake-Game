@@ -37,11 +37,17 @@ int main() {
 
     sf::Text gameOverText;
     gameOverText.setFont(font);
-    gameOverText.setCharacterSize(50);
+    gameOverText.setCharacterSize(40);
     gameOverText.setFillColor(sf::Color(255, 215, 0));
-    gameOverText.setPosition(210.f, 130.f);
+    gameOverText.setPosition(298.f, 128.f);
     gameOverText.setString("GAME OVER");
 
+    sf::Text instructionsForR;
+    instructionsForR.setFont(font);
+    instructionsForR.setCharacterSize(18);
+    instructionsForR.setFillColor(sf::Color(255, 215, 0));
+    instructionsForR.setPosition(240.f, 110.f);
+    instructionsForR.setString("Press 'R' to restart the same difficulty");
     // GAME OVER PANEL
     sf::RectangleShape gameOverPanel(sf::Vector2f(500.f, 380.f));
     gameOverPanel.setFillColor(sf::Color(20, 20, 40, 220));
@@ -52,32 +58,33 @@ int main() {
     // Highscore text
     sf::Text highScoreText;
     highScoreText.setFont(font);
-    highScoreText.setCharacterSize(30);
+    highScoreText.setCharacterSize(25);
     highScoreText.setFillColor(sf::Color::White);
 
-    // Return to Menu Button
-    sf::RectangleShape menuButton(sf::Vector2f(250.f, 60.f));
+    sf::RectangleShape menuButton(sf::Vector2f(210.f, 50.f));
     menuButton.setFillColor(sf::Color(255, 215, 0));
-    menuButton.setPosition(275.f, 330.f);
+    menuButton.setPosition(295.f, 343.f);
 
     sf::Text menuButtonText;
     menuButtonText.setFont(font);
     menuButtonText.setString("Return to Menu");
-    menuButtonText.setCharacterSize(24);
+    menuButtonText.setCharacterSize(25);
     menuButtonText.setFillColor(sf::Color::Black);
-    menuButtonText.setPosition(295.f, 345.f);
+    menuButtonText.setPosition(311.f, 352.f);
 
     // Exit Game Button
-    sf::RectangleShape exitButton(sf::Vector2f(250.f, 60.f));
+    sf::RectangleShape exitButton(sf::Vector2f(210.f, 50.f));
     exitButton.setFillColor(sf::Color(255, 215, 0));
-    exitButton.setPosition(275.f, 405.f);
+    exitButton.setPosition(295.f, 407.f);
 
     sf::Text exitButtonText;
     exitButtonText.setFont(font);
     exitButtonText.setString("Exit Game");
-    exitButtonText.setCharacterSize(24);
+    exitButtonText.setCharacterSize(25);
     exitButtonText.setFillColor(sf::Color::Black);
-    exitButtonText.setPosition(335.f, 420.f);
+    exitButtonText.setPosition(345.f, 417.f);
+
+    
 
     int score = 0;
     std::vector<int> highScores;
@@ -235,7 +242,7 @@ int main() {
         // Center text
         sf::FloatRect bounds = highScoreText.getLocalBounds();
         highScoreText.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
-        highScoreText.setPosition(400.f, 250.f);
+        highScoreText.setPosition(400.f, 262.f);
 
         window.clear(sf::Color(30, 30, 30));
 
@@ -259,6 +266,7 @@ int main() {
             // Draw game over UI
             if (gameOver) {
                 window.draw(gameOverPanel);
+                window.draw(instructionsForR);
                 window.draw(gameOverText);
                 window.draw(highScoreText);
                 window.draw(menuButton);
