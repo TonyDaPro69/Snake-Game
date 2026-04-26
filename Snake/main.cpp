@@ -37,10 +37,17 @@ int main() {
 
     sf::Text gameOverText;
     gameOverText.setFont(font);
-    gameOverText.setCharacterSize(50);
+    gameOverText.setCharacterSize(40);
     gameOverText.setFillColor(sf::Color(255, 215, 0));
-    gameOverText.setPosition(210.f, 130.f);
+    gameOverText.setPosition(298.f, 128.f);
     gameOverText.setString("GAME OVER");
+
+    sf::Text instructionsForR;
+    instructionsForR.setFont(font);
+    instructionsForR.setCharacterSize(18);
+    instructionsForR.setFillColor(sf::Color(255, 215, 0));
+    instructionsForR.setPosition(240.f, 110.f);
+    instructionsForR.setString("Press 'R' to restart the same difficulty");
 
     // GAME OVER PANEL
     sf::RectangleShape gameOverPanel(sf::Vector2f(500.f, 380.f));
@@ -52,32 +59,63 @@ int main() {
     // Highscore text
     sf::Text highScoreText;
     highScoreText.setFont(font);
-    highScoreText.setCharacterSize(30);
+    highScoreText.setCharacterSize(25);
     highScoreText.setFillColor(sf::Color::White);
 
-    // Return to Menu Button
-    sf::RectangleShape menuButton(sf::Vector2f(250.f, 60.f));
+    sf::RectangleShape menuButton(sf::Vector2f(210.f, 50.f));
     menuButton.setFillColor(sf::Color(255, 215, 0));
-    menuButton.setPosition(275.f, 330.f);
+    menuButton.setPosition(295.f, 343.f);
 
     sf::Text menuButtonText;
     menuButtonText.setFont(font);
     menuButtonText.setString("Return to Menu");
-    menuButtonText.setCharacterSize(24);
+    menuButtonText.setCharacterSize(25);
     menuButtonText.setFillColor(sf::Color::Black);
-    menuButtonText.setPosition(295.f, 345.f);
+    menuButtonText.setPosition(311.f, 352.f);
 
     // Exit Game Button
-    sf::RectangleShape exitButton(sf::Vector2f(250.f, 60.f));
+    sf::RectangleShape exitButton(sf::Vector2f(210.f, 50.f));
     exitButton.setFillColor(sf::Color(255, 215, 0));
-    exitButton.setPosition(275.f, 405.f);
+    exitButton.setPosition(295.f, 407.f);
 
     sf::Text exitButtonText;
     exitButtonText.setFont(font);
     exitButtonText.setString("Exit Game");
-    exitButtonText.setCharacterSize(24);
+    exitButtonText.setCharacterSize(25);
     exitButtonText.setFillColor(sf::Color::Black);
-    exitButtonText.setPosition(335.f, 420.f);
+    exitButtonText.setPosition(345.f, 417.f);
+
+    // HOW TO PLAY SCREEN
+    sf::Text howToPlayTitle;
+    howToPlayTitle.setFont(font);
+    howToPlayTitle.setCharacterSize(45);
+    howToPlayTitle.setFillColor(sf::Color(255, 215, 0));
+    howToPlayTitle.setPosition(250.f, 130.f);
+    howToPlayTitle.setString("HOW TO PLAY");
+
+    sf::Text howToPlayText;
+    howToPlayText.setFont(font);
+    howToPlayText.setCharacterSize(24);
+    howToPlayText.setFillColor(sf::Color::White);
+    howToPlayText.setPosition(190.f, 210.f);
+    howToPlayText.setString(
+        "Use W A S D to move the snake around\n\n"
+        "Collect red tiles on the grid to grow\n"
+        "your tail and increase your score\n\n"
+        "Avoid colliding with yourself\n"
+        "or any walls"
+    );
+
+    sf::RectangleShape howToPlayBackButton(sf::Vector2f(210.f, 50.f));
+    howToPlayBackButton.setFillColor(sf::Color(255, 215, 0));
+    howToPlayBackButton.setPosition(295.f, 405.f);
+
+    sf::Text howToPlayBackText;
+    howToPlayBackText.setFont(font);
+    howToPlayBackText.setString("Back to Menu");
+    howToPlayBackText.setCharacterSize(25);
+    howToPlayBackText.setFillColor(sf::Color::Black);
+    howToPlayBackText.setPosition(323.f, 415.f);
 
     int score = 0;
     std::vector<int> highScores;
@@ -87,6 +125,7 @@ int main() {
 
     bool gameOver = false;
     bool showMenu = true;
+    bool showHowToPlay = false;
 
     Menu menu(800.f, 600.f);
 
@@ -106,6 +145,7 @@ int main() {
                 if (event.key.code == sf::Keyboard::Enter) {
                     if (menu.getSelectedIndex() == 0) {
                         showMenu = false;
+                        showHowToPlay = false;
 
                         snake = { {10,10}, {9,10}, {8,10} };
                         direction = { 1, 0 };
@@ -128,6 +168,11 @@ int main() {
                     }
 
                     if (menu.getSelectedIndex() == 2) {
+                        showMenu = false;
+                        showHowToPlay = true;
+                    }
+
+                    if (menu.getSelectedIndex() == 3) {
                         window.close();
                     }
                 }
@@ -147,11 +192,20 @@ int main() {
                         window.close();
                     }
                 }
+
+                if (showHowToPlay) {
+                    sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+                    if (howToPlayBackButton.getGlobalBounds().contains(mousePos)) {
+                        showHowToPlay = false;
+                        showMenu = true;
+                    }
+                }
             }
         }
 
         // Restart
-        if (!showMenu && gameOver && sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
+        if (!showMenu && !showHowToPlay && gameOver && sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
             snake = { {10,10}, {9,10}, {8,10} };
             direction = { 1, 0 };
             food = { rand() % width, rand() % height };
@@ -159,16 +213,16 @@ int main() {
             gameOver = false;
 
             if (menu.getDifficulty() == "Easy")
-                delay = 0.15f;
+                delay = 0.20f;
             if (menu.getDifficulty() == "Medium")
-                delay = 0.10f;
+                delay = 0.15f;
             if (menu.getDifficulty() == "Hard")
-                delay = 0.07f;
+                delay = 0.10f;
 
             clock.restart();
         }
 
-        if (!showMenu && !gameOver) {
+        if (!showMenu && !showHowToPlay && !gameOver) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && direction.y == 0)
                 direction = { 0, -1 };
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && direction.y == 0)
@@ -205,7 +259,7 @@ int main() {
                 if (highScores.size() > 5)
                     highScores.resize(5);
 
-                //updating the speed
+                // updating the speed
                 if (snake[0] == food) {
                     snake.push_back(snake.back());
                     food = { rand() % width, rand() % height };
@@ -235,12 +289,19 @@ int main() {
         // Center text
         sf::FloatRect bounds = highScoreText.getLocalBounds();
         highScoreText.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
-        highScoreText.setPosition(400.f, 250.f);
+        highScoreText.setPosition(400.f, 262.f);
 
         window.clear(sf::Color(30, 30, 30));
 
         if (showMenu) {
             menu.draw(window);
+        }
+        else if (showHowToPlay) {
+            window.draw(gameOverPanel);
+            window.draw(howToPlayTitle);
+            window.draw(howToPlayText);
+            window.draw(howToPlayBackButton);
+            window.draw(howToPlayBackText);
         }
         else {
             // Draw game
@@ -259,6 +320,7 @@ int main() {
             // Draw game over UI
             if (gameOver) {
                 window.draw(gameOverPanel);
+                window.draw(instructionsForR);
                 window.draw(gameOverText);
                 window.draw(highScoreText);
                 window.draw(menuButton);

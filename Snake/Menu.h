@@ -4,7 +4,7 @@
 
 class Menu {
 private:
-    static const int itemCount = 3;
+    static const int itemCount = 4;
     sf::Text items[itemCount];
     sf::Text titleText;
     sf::Text subtitleText;
