@@ -38,9 +38,16 @@ int main() {
     sf::Text gameOverText;
     gameOverText.setFont(font);
     gameOverText.setCharacterSize(50);
-    gameOverText.setFillColor(sf::Color::Red);
-    gameOverText.setPosition(150, 150);
+    gameOverText.setFillColor(sf::Color(255, 215, 0));
+    gameOverText.setPosition(210.f, 130.f);
     gameOverText.setString("GAME OVER");
+
+    // GAME OVER PANEL
+    sf::RectangleShape gameOverPanel(sf::Vector2f(500.f, 380.f));
+    gameOverPanel.setFillColor(sf::Color(20, 20, 40, 220));
+    gameOverPanel.setOutlineThickness(4.f);
+    gameOverPanel.setOutlineColor(sf::Color(255, 215, 0));
+    gameOverPanel.setPosition(150.f, 100.f);
 
     // Highscore text
     sf::Text highScoreText;
@@ -48,17 +55,29 @@ int main() {
     highScoreText.setCharacterSize(30);
     highScoreText.setFillColor(sf::Color::White);
 
-    // Menu Button
+    // Return to Menu Button
     sf::RectangleShape menuButton(sf::Vector2f(250.f, 60.f));
-    menuButton.setFillColor(sf::Color::Blue);
-    menuButton.setPosition(275.f, 420.f);
+    menuButton.setFillColor(sf::Color(255, 215, 0));
+    menuButton.setPosition(275.f, 330.f);
 
     sf::Text menuButtonText;
     menuButtonText.setFont(font);
     menuButtonText.setString("Return to Menu");
     menuButtonText.setCharacterSize(24);
-    menuButtonText.setFillColor(sf::Color::White);
-    menuButtonText.setPosition(300.f, 435.f);
+    menuButtonText.setFillColor(sf::Color::Black);
+    menuButtonText.setPosition(295.f, 345.f);
+
+    // Exit Game Button
+    sf::RectangleShape exitButton(sf::Vector2f(250.f, 60.f));
+    exitButton.setFillColor(sf::Color(255, 215, 0));
+    exitButton.setPosition(275.f, 405.f);
+
+    sf::Text exitButtonText;
+    exitButtonText.setFont(font);
+    exitButtonText.setString("Exit Game");
+    exitButtonText.setCharacterSize(24);
+    exitButtonText.setFillColor(sf::Color::Black);
+    exitButtonText.setPosition(335.f, 420.f);
 
     int score = 0;
     std::vector<int> highScores;
@@ -123,6 +142,10 @@ int main() {
                         showMenu = true;
                         gameOver = false;
                     }
+
+                    if (exitButton.getGlobalBounds().contains(mousePos)) {
+                        window.close();
+                    }
                 }
             }
         }
@@ -136,11 +159,11 @@ int main() {
             gameOver = false;
 
             if (menu.getDifficulty() == "Easy")
-                delay = 0.20f;
-            if (menu.getDifficulty() == "Medium")
                 delay = 0.15f;
-            if (menu.getDifficulty() == "Hard")
+            if (menu.getDifficulty() == "Medium")
                 delay = 0.10f;
+            if (menu.getDifficulty() == "Hard")
+                delay = 0.07f;
 
             clock.restart();
         }
@@ -182,10 +205,18 @@ int main() {
                 if (highScores.size() > 5)
                     highScores.resize(5);
 
+                //updating the speed
                 if (snake[0] == food) {
                     snake.push_back(snake.back());
                     food = { rand() % width, rand() % height };
                     score++;
+
+                    std::cout << "Food eaten | Score: " << score
+                        << " | Delay: " << delay << std::endl;
+
+                    delay -= 0.01f;
+                    if (delay < 0.03f)
+                        delay = 0.03f;
                 }
 
                 clock.restart();
@@ -204,7 +235,7 @@ int main() {
         // Center text
         sf::FloatRect bounds = highScoreText.getLocalBounds();
         highScoreText.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
-        highScoreText.setPosition(400.f, 300.f);
+        highScoreText.setPosition(400.f, 250.f);
 
         window.clear(sf::Color(30, 30, 30));
 
@@ -227,10 +258,13 @@ int main() {
 
             // Draw game over UI
             if (gameOver) {
+                window.draw(gameOverPanel);
                 window.draw(gameOverText);
                 window.draw(highScoreText);
                 window.draw(menuButton);
                 window.draw(menuButtonText);
+                window.draw(exitButton);
+                window.draw(exitButtonText);
             }
         }
 
