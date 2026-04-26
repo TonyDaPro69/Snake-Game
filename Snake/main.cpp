@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include "Menu.h"
 #include <algorithm>
 
 int main() {
@@ -19,8 +20,8 @@ int main() {
 
     sf::Vector2i food(rand() % width, rand() % height);
 
-    sf::RectangleShape block(sf::Vector2f(tileSize, tileSize));
-    sf::RectangleShape foodShape(sf::Vector2f(tileSize, tileSize));
+    sf::RectangleShape block(sf::Vector2f(static_cast<float>(tileSize), static_cast<float>(tileSize)));
+    sf::RectangleShape foodShape(sf::Vector2f(static_cast<float>(tileSize), static_cast<float>(tileSize)));
 
     block.setFillColor(sf::Color::Green);
     foodShape.setFillColor(sf::Color::Red);
@@ -41,23 +42,23 @@ int main() {
     gameOverText.setPosition(150, 150);
     gameOverText.setString("GAME OVER");
 
-    // ?? Highscore text
+    // Highscore text
     sf::Text highScoreText;
     highScoreText.setFont(font);
     highScoreText.setCharacterSize(30);
     highScoreText.setFillColor(sf::Color::White);
 
-    // ?? Menu Button
-    sf::RectangleShape menuButton(sf::Vector2f(250, 60));
+    // Menu Button
+    sf::RectangleShape menuButton(sf::Vector2f(250.f, 60.f));
     menuButton.setFillColor(sf::Color::Blue);
-    menuButton.setPosition(275, 420);
+    menuButton.setPosition(275.f, 420.f);
 
     sf::Text menuButtonText;
     menuButtonText.setFont(font);
     menuButtonText.setString("Return to Menu");
     menuButtonText.setCharacterSize(24);
     menuButtonText.setFillColor(sf::Color::White);
-    menuButtonText.setPosition(300, 435);
+    menuButtonText.setPosition(300.f, 435.f);
 
     int score = 0;
     std::vector<int> highScores;
@@ -66,6 +67,9 @@ int main() {
     float delay = 0.15f;
 
     bool gameOver = false;
+    bool showMenu = true;
+
+    Menu menu(800.f, 600.f);
 
     while (window.isOpen()) {
         sf::Event event;
@@ -73,26 +77,75 @@ int main() {
             if (event.type == sf::Event::Closed)
                 window.close();
 
-            // ?? Button click
+            if (showMenu && event.type == sf::Event::KeyReleased) {
+                if (event.key.code == sf::Keyboard::W)
+                    menu.moveUp();
+
+                if (event.key.code == sf::Keyboard::S)
+                    menu.moveDown();
+
+                if (event.key.code == sf::Keyboard::Enter) {
+                    if (menu.getSelectedIndex() == 0) {
+                        showMenu = false;
+
+                        snake = { {10,10}, {9,10}, {8,10} };
+                        direction = { 1, 0 };
+                        food = { rand() % width, rand() % height };
+                        score = 0;
+                        gameOver = false;
+
+                        if (menu.getDifficulty() == "Easy")
+                            delay = 0.20f;
+                        if (menu.getDifficulty() == "Medium")
+                            delay = 0.15f;
+                        if (menu.getDifficulty() == "Hard")
+                            delay = 0.10f;
+
+                        clock.restart();
+                    }
+
+                    if (menu.getSelectedIndex() == 1) {
+                        menu.nextDifficulty();
+                    }
+
+                    if (menu.getSelectedIndex() == 2) {
+                        window.close();
+                    }
+                }
+            }
+
+            // Button click
             if (event.type == sf::Event::MouseButtonPressed) {
-                if (gameOver) {
+                if (!showMenu && gameOver) {
                     sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
                     if (menuButton.getGlobalBounds().contains(mousePos)) {
-                        // ?? LEAVE EMPTY (partner will implement menu)
+                        showMenu = true;
+                        gameOver = false;
                     }
                 }
             }
         }
 
-        if (gameOver && sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
+        // Restart
+        if (!showMenu && gameOver && sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
             snake = { {10,10}, {9,10}, {8,10} };
             direction = { 1, 0 };
             food = { rand() % width, rand() % height };
             score = 0;
             gameOver = false;
+
+            if (menu.getDifficulty() == "Easy")
+                delay = 0.20f;
+            if (menu.getDifficulty() == "Medium")
+                delay = 0.15f;
+            if (menu.getDifficulty() == "Hard")
+                delay = 0.10f;
+
+            clock.restart();
         }
 
-        if (!gameOver) {
+        if (!showMenu && !gameOver) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && direction.y == 0)
                 direction = { 0, -1 };
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && direction.y == 0)
@@ -103,20 +156,21 @@ int main() {
                 direction = { 1, 0 };
 
             if (clock.getElapsedTime().asSeconds() > delay) {
-                for (int i = snake.size() - 1; i > 0; i--)
+                for (int i = static_cast<int>(snake.size()) - 1; i > 0; i--) {
                     snake[i] = snake[i - 1];
+                }
 
                 snake[0] += direction;
 
                 // Collision
                 if (snake[0].x < 0 || snake[0].x >= width ||
                     snake[0].y < 0 || snake[0].y >= height) {
-
                     gameOver = true;
                     highScores.push_back(score);
                 }
 
-                for (int i = 1; i < snake.size(); i++) {
+                // Self collision
+                for (int i = 1; i < static_cast<int>(snake.size()); i++) {
                     if (snake[0] == snake[i]) {
                         gameOver = true;
                         highScores.push_back(score);
@@ -140,39 +194,44 @@ int main() {
 
         scoreText.setString("Score: " + std::to_string(score));
 
-        // ?? Highscore string
+        // Highscore string
         std::string hs = "Top 5 Scores:\n";
-        for (int i = 0; i < highScores.size(); i++)
+        for (int i = 0; i < static_cast<int>(highScores.size()); i++)
             hs += std::to_string(i + 1) + ". " + std::to_string(highScores[i]) + "\n";
 
         highScoreText.setString(hs);
 
         // Center text
         sf::FloatRect bounds = highScoreText.getLocalBounds();
-        highScoreText.setOrigin(bounds.width / 2, bounds.height / 2);
-        highScoreText.setPosition(400, 300);
+        highScoreText.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
+        highScoreText.setPosition(400.f, 300.f);
 
         window.clear(sf::Color(30, 30, 30));
 
-        // Draw game
-        if (!gameOver) {
-            for (auto& segment : snake) {
-                block.setPosition(segment.x * tileSize, segment.y * tileSize);
-                window.draw(block);
+        if (showMenu) {
+            menu.draw(window);
+        }
+        else {
+            // Draw game
+            if (!gameOver) {
+                for (auto& segment : snake) {
+                    block.setPosition(static_cast<float>(segment.x * tileSize), static_cast<float>(segment.y * tileSize));
+                    window.draw(block);
+                }
+
+                foodShape.setPosition(static_cast<float>(food.x * tileSize), static_cast<float>(food.y * tileSize));
+                window.draw(foodShape);
+
+                window.draw(scoreText);
             }
 
-            foodShape.setPosition(food.x * tileSize, food.y * tileSize);
-            window.draw(foodShape);
-
-            window.draw(scoreText);
-        }
-
-        // Draw game over UI
-        if (gameOver) {
-            window.draw(gameOverText);
-            window.draw(highScoreText);
-            window.draw(menuButton);
-            window.draw(menuButtonText);
+            // Draw game over UI
+            if (gameOver) {
+                window.draw(gameOverText);
+                window.draw(highScoreText);
+                window.draw(menuButton);
+                window.draw(menuButtonText);
+            }
         }
 
         window.display();

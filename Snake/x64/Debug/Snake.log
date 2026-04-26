@@ -1,7 +1,2 @@
 ﻿  main.cpp
-C:\Users\huyan\source\repos\Snake-Game\Snake\main.cpp(106,28): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\huyan\source\repos\Snake-Game\Snake\main.cpp(160,67): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\huyan\source\repos\Snake-Game\Snake\main.cpp(160,45): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\huyan\source\repos\Snake-Game\Snake\main.cpp(164,61): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\huyan\source\repos\Snake-Game\Snake\main.cpp(164,42): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-  Snake.vcxproj -> C:\Users\huyan\source\repos\Snake-Game\x64\Debug\Snake.exe
+  Snake.vcxproj -> D:\GitHub\Snake-Game\x64\Debug\Snake.exe
