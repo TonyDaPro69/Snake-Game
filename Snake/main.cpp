@@ -23,20 +23,20 @@ int main() {
     sf::RectangleShape block(sf::Vector2f(tileSize, tileSize));
     sf::RectangleShape foodShape(sf::Vector2f(tileSize, tileSize));
 
-    // HIGH VISIBILITY COLORS
-    block.setFillColor(sf::Color::Yellow);
-    foodShape.setFillColor(sf::Color::Magenta);
+    // ?? NORMAL COLORS
+    block.setFillColor(sf::Color::Green);   // Snake
+    foodShape.setFillColor(sf::Color::Red); // Food
 
     // FONT
     sf::Font font;
-	font.loadFromFile("ChangaOne-Regular.ttf"); 
+    font.loadFromFile("ChangaOne-Regular.ttf");
 
     // SCORE TEXT
     sf::Text scoreText;
     scoreText.setFont(font);
-    scoreText.setCharacterSize(40);
+    scoreText.setCharacterSize(30);
     scoreText.setFillColor(sf::Color::White);
-    scoreText.setPosition(300, 20);
+    scoreText.setPosition(10, 10);
 
     // GAME OVER TEXT
     sf::Text gameOverText;
@@ -115,23 +115,23 @@ int main() {
         // Update score
         scoreText.setString("Score: " + std::to_string(score));
 
-        // DRAW
-        window.clear(sf::Color::Blue);
+        // ?? DARK BACKGROUND
+        window.clear(sf::Color(30, 30, 30));
 
-        // Snake
+        // Draw snake
         for (auto& segment : snake) {
             block.setPosition(segment.x * tileSize, segment.y * tileSize);
             window.draw(block);
         }
 
-        // Food
+        // Draw food
         foodShape.setPosition(food.x * tileSize, food.y * tileSize);
         window.draw(foodShape);
 
-        // Score
+        // Draw score
         window.draw(scoreText);
 
-        // Game Over
+        // Draw game over
         if (gameOver) {
             window.draw(gameOverText);
         }
