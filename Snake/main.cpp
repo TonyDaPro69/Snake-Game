@@ -6,6 +6,10 @@
 #include "Menu.h"
 #include <algorithm>
 
+bool farFrom(const sf::Vector2i& a, const sf::Vector2i& b, int d) {
+    return abs(a.x - b.x) > d || abs(a.y - b.y) > d;
+}
+
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Snake Game");
 
@@ -18,104 +22,73 @@ int main() {
     std::vector<sf::Vector2i> snake = { {10,10}, {9,10}, {8,10} };
     sf::Vector2i direction(1, 0);
 
-    sf::Vector2i food(rand() % width, rand() % height);
+    std::vector<sf::Vector2i> walls;
+    sf::Vector2i food;
 
-    sf::RectangleShape block(sf::Vector2f(static_cast<float>(tileSize), static_cast<float>(tileSize)));
-    sf::RectangleShape foodShape(sf::Vector2f(static_cast<float>(tileSize), static_cast<float>(tileSize)));
-
-    block.setFillColor(sf::Color::Green);
+    sf::RectangleShape block(sf::Vector2f(tileSize, tileSize));
+    sf::RectangleShape foodShape(sf::Vector2f(tileSize, tileSize));
     foodShape.setFillColor(sf::Color::Red);
 
     sf::Font font;
     font.loadFromFile("ChangaOne-Regular.ttf");
 
-    sf::Text scoreText;
-    scoreText.setFont(font);
-    scoreText.setCharacterSize(30);
+    sf::Text scoreText("Score: 0", font, 30);
     scoreText.setFillColor(sf::Color::White);
     scoreText.setPosition(10, 10);
 
-    sf::Text gameOverText;
-    gameOverText.setFont(font);
-    gameOverText.setCharacterSize(40);
+    sf::Text gameOverText("GAME OVER", font, 40);
     gameOverText.setFillColor(sf::Color(255, 215, 0));
-    gameOverText.setPosition(298.f, 128.f);
-    gameOverText.setString("GAME OVER");
+    gameOverText.setPosition(295, 130);
 
-    sf::Text instructionsForR;
-    instructionsForR.setFont(font);
-    instructionsForR.setCharacterSize(18);
-    instructionsForR.setFillColor(sf::Color(255, 215, 0));
-    instructionsForR.setPosition(240.f, 110.f);
-    instructionsForR.setString("Press 'R' to restart the same difficulty");
+    sf::Text instructionsForR("Press R\nto restart\nsame level", font, 18);
+    instructionsForR.setFillColor(sf::Color(200, 200, 200));
+    instructionsForR.setPosition(220, 220);
 
-    // GAME OVER PANEL
-    sf::RectangleShape gameOverPanel(sf::Vector2f(500.f, 380.f));
+    sf::RectangleShape gameOverPanel(sf::Vector2f(500, 380));
     gameOverPanel.setFillColor(sf::Color(20, 20, 40, 220));
-    gameOverPanel.setOutlineThickness(4.f);
+    gameOverPanel.setOutlineThickness(4);
     gameOverPanel.setOutlineColor(sf::Color(255, 215, 0));
-    gameOverPanel.setPosition(150.f, 100.f);
+    gameOverPanel.setPosition(150, 100);
 
-    // Highscore text
-    sf::Text highScoreText;
-    highScoreText.setFont(font);
-    highScoreText.setCharacterSize(25);
+    sf::Text highScoreText("", font, 25);
     highScoreText.setFillColor(sf::Color::White);
 
-    sf::RectangleShape menuButton(sf::Vector2f(210.f, 50.f));
+    sf::RectangleShape menuButton(sf::Vector2f(210, 50));
     menuButton.setFillColor(sf::Color(255, 215, 0));
-    menuButton.setPosition(295.f, 343.f);
+    menuButton.setPosition(295, 343);
 
-    sf::Text menuButtonText;
-    menuButtonText.setFont(font);
-    menuButtonText.setString("Return to Menu");
-    menuButtonText.setCharacterSize(25);
+    sf::Text menuButtonText("Return to Menu", font, 25);
     menuButtonText.setFillColor(sf::Color::Black);
-    menuButtonText.setPosition(311.f, 352.f);
+    menuButtonText.setPosition(310, 350);
 
-    // Exit Game Button
-    sf::RectangleShape exitButton(sf::Vector2f(210.f, 50.f));
+    sf::RectangleShape exitButton(sf::Vector2f(210, 50));
     exitButton.setFillColor(sf::Color(255, 215, 0));
-    exitButton.setPosition(295.f, 407.f);
+    exitButton.setPosition(295, 407);
 
-    sf::Text exitButtonText;
-    exitButtonText.setFont(font);
-    exitButtonText.setString("Exit Game");
-    exitButtonText.setCharacterSize(25);
+    sf::Text exitButtonText("Exit Game", font, 25);
     exitButtonText.setFillColor(sf::Color::Black);
-    exitButtonText.setPosition(345.f, 417.f);
+    exitButtonText.setPosition(340, 415);
 
-    // HOW TO PLAY SCREEN
-    sf::Text howToPlayTitle;
-    howToPlayTitle.setFont(font);
-    howToPlayTitle.setCharacterSize(45);
-    howToPlayTitle.setFillColor(sf::Color(255, 215, 0));
-    howToPlayTitle.setPosition(250.f, 130.f);
-    howToPlayTitle.setString("HOW TO PLAY");
+    // HOW TO PLAY
+    sf::Text howTitle("HOW TO PLAY", font, 45);
+    howTitle.setFillColor(sf::Color(255, 215, 0));
+    howTitle.setPosition(240, 130);
 
-    sf::Text howToPlayText;
-    howToPlayText.setFont(font);
-    howToPlayText.setCharacterSize(24);
-    howToPlayText.setFillColor(sf::Color::White);
-    howToPlayText.setPosition(190.f, 210.f);
-    howToPlayText.setString(
-        "Use W A S D to move the snake around\n\n"
-        "Collect red tiles on the grid to grow\n"
-        "your tail and increase your score\n\n"
-        "Avoid colliding with yourself\n"
-        "or any walls"
-    );
+    sf::Text howText(
+        "Use W A S D to move\n\n"
+        "Collect food to grow\n\n"
+        "Avoid walls and yourself",
+        font, 24);
+    howText.setFillColor(sf::Color::White);
+    howText.setPosition(200, 230);
 
-    sf::RectangleShape howToPlayBackButton(sf::Vector2f(210.f, 50.f));
-    howToPlayBackButton.setFillColor(sf::Color(255, 215, 0));
-    howToPlayBackButton.setPosition(295.f, 405.f);
+    sf::RectangleShape howBack(sf::Vector2f(210, 50));
+    howBack.setFillColor(sf::Color(255, 215, 0));
+    howBack.setPosition(295, 405);
 
-    sf::Text howToPlayBackText;
-    howToPlayBackText.setFont(font);
-    howToPlayBackText.setString("Back to Menu");
-    howToPlayBackText.setCharacterSize(25);
-    howToPlayBackText.setFillColor(sf::Color::Black);
-    howToPlayBackText.setPosition(323.f, 415.f);
+    sf::Text howBackText("Back to Menu", font, 25);
+    howBackText.setFillColor(sf::Color::Black);
+    howBackText.setPosition(310, 415);
 
     int score = 0;
     std::vector<int> highScores;
@@ -132,145 +105,151 @@ int main() {
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
+
             if (event.type == sf::Event::Closed)
                 window.close();
 
+            // MENU INPUT
             if (showMenu && event.type == sf::Event::KeyReleased) {
-                if (event.key.code == sf::Keyboard::W)
-                    menu.moveUp();
-
-                if (event.key.code == sf::Keyboard::S)
-                    menu.moveDown();
+                if (event.key.code == sf::Keyboard::W) menu.moveUp();
+                if (event.key.code == sf::Keyboard::S) menu.moveDown();
 
                 if (event.key.code == sf::Keyboard::Enter) {
+
                     if (menu.getSelectedIndex() == 0) {
                         showMenu = false;
                         showHowToPlay = false;
 
-                        snake = { {10,10}, {9,10}, {8,10} };
-                        direction = { 1, 0 };
-                        food = { rand() % width, rand() % height };
+                        snake = { {10,10},{9,10},{8,10} };
+                        direction = { 1,0 };
                         score = 0;
                         gameOver = false;
+                        walls.clear();
 
-                        if (menu.getDifficulty() == "Easy")
-                            delay = 0.20f;
-                        if (menu.getDifficulty() == "Medium")
-                            delay = 0.15f;
-                        if (menu.getDifficulty() == "Hard")
-                            delay = 0.10f;
+                        bool ok = false;
+                        while (!ok) {
+                            food = { rand() % width, rand() % height };
+                            if (farFrom(food, snake[0], 5)) ok = true;
+                        }
+
+                        if (menu.getDifficulty() == "Easy") delay = 0.20f;
+                        if (menu.getDifficulty() == "Medium") delay = 0.15f;
+                        if (menu.getDifficulty() == "Hard") delay = 0.10f;
 
                         clock.restart();
                     }
 
-                    if (menu.getSelectedIndex() == 1) {
+                    if (menu.getSelectedIndex() == 1)
                         menu.nextDifficulty();
-                    }
 
                     if (menu.getSelectedIndex() == 2) {
                         showMenu = false;
                         showHowToPlay = true;
                     }
 
-                    if (menu.getSelectedIndex() == 3) {
+                    if (menu.getSelectedIndex() == 3)
                         window.close();
-                    }
                 }
             }
 
-            // Button click
+            // MOUSE
             if (event.type == sf::Event::MouseButtonPressed) {
-                if (!showMenu && gameOver) {
-                    sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+                sf::Vector2f mouse = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
-                    if (menuButton.getGlobalBounds().contains(mousePos)) {
+                if (!showMenu && gameOver) {
+                    if (menuButton.getGlobalBounds().contains(mouse)) {
                         showMenu = true;
                         gameOver = false;
                     }
-
-                    if (exitButton.getGlobalBounds().contains(mousePos)) {
+                    if (exitButton.getGlobalBounds().contains(mouse))
                         window.close();
-                    }
                 }
 
                 if (showHowToPlay) {
-                    sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-
-                    if (howToPlayBackButton.getGlobalBounds().contains(mousePos)) {
-                        showHowToPlay = false;
+                    if (howBack.getGlobalBounds().contains(mouse)) {
                         showMenu = true;
+                        showHowToPlay = false;
                     }
                 }
             }
         }
 
-        // Restart
-        if (!showMenu && !showHowToPlay && gameOver && sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
-            snake = { {10,10}, {9,10}, {8,10} };
-            direction = { 1, 0 };
-            food = { rand() % width, rand() % height };
+        // RESTART
+        if (!showMenu && !showHowToPlay && gameOver &&
+            sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
+
+            snake = { {10,10},{9,10},{8,10} };
+            direction = { 1,0 };
             score = 0;
             gameOver = false;
-
-            if (menu.getDifficulty() == "Easy")
-                delay = 0.20f;
-            if (menu.getDifficulty() == "Medium")
-                delay = 0.15f;
-            if (menu.getDifficulty() == "Hard")
-                delay = 0.10f;
-
-            clock.restart();
+            walls.clear();
         }
 
+        // GAME LOGIC
         if (!showMenu && !showHowToPlay && !gameOver) {
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && direction.y == 0)
-                direction = { 0, -1 };
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && direction.y == 0)
-                direction = { 0, 1 };
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && direction.x == 0)
-                direction = { -1, 0 };
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && direction.x == 0)
-                direction = { 1, 0 };
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && direction.y == 0) direction = { 0,-1 };
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && direction.y == 0) direction = { 0,1 };
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && direction.x == 0) direction = { -1,0 };
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && direction.x == 0) direction = { 1,0 };
 
             if (clock.getElapsedTime().asSeconds() > delay) {
-                for (int i = static_cast<int>(snake.size()) - 1; i > 0; i--) {
+
+                for (int i = snake.size() - 1;i > 0;i--)
                     snake[i] = snake[i - 1];
-                }
 
                 snake[0] += direction;
 
-                // Collision
+                bool justDied = false;
+
                 if (snake[0].x < 0 || snake[0].x >= width ||
-                    snake[0].y < 0 || snake[0].y >= height) {
+                    snake[0].y < 0 || snake[0].y >= height)
+                    justDied = true;
+
+                for (int i = 1;i < snake.size();i++)
+                    if (snake[0] == snake[i]) justDied = true;
+
+                for (auto& w : walls)
+                    if (snake[0] == w) justDied = true;
+
+                if (justDied) {
                     gameOver = true;
                     highScores.push_back(score);
+
+                    std::sort(highScores.begin(), highScores.end(), std::greater<int>());
+                    if (highScores.size() > 5)
+                        highScores.resize(5);
                 }
 
-                // Self collision
-                for (int i = 1; i < static_cast<int>(snake.size()); i++) {
-                    if (snake[0] == snake[i]) {
-                        gameOver = true;
-                        highScores.push_back(score);
-                    }
-                }
-
-                // Sort + keep top 5
-                std::sort(highScores.begin(), highScores.end(), std::greater<int>());
-                if (highScores.size() > 5)
-                    highScores.resize(5);
-
-                // updating the speed
                 if (snake[0] == food) {
                     snake.push_back(snake.back());
-                    food = { rand() % width, rand() % height };
                     score++;
 
-                    std::cout << "Food eaten | Score: " << score
-                        << " | Delay: " << delay << std::endl;
+                    bool ok = false;
+                    while (!ok) {
+                        food = { rand() % width,rand() % height };
+                        if (farFrom(food, snake[0], 5)) ok = true;
+                    }
 
-                    delay -= 0.01f;
-                    if (delay < 0.03f)
-                        delay = 0.03f;
+                    if (menu.getDifficulty() == "Hard") {
+                        walls.clear();
+                        int len = rand() % 3 + 5;
+
+                        sf::Vector2i cur = food + sf::Vector2i(5, 5);
+
+                        for (int i = 0;i < len;i++) {
+                            cur.x = std::max(0, std::min(width - 1, cur.x));
+                            cur.y = std::max(0, std::min(height - 1, cur.y));
+
+                            walls.push_back(cur);
+
+                            int d = rand() % 4;
+                            if (d == 0) cur.x++;
+                            if (d == 1) cur.x--;
+                            if (d == 2) cur.y++;
+                            if (d == 3) cur.y--;
+                        }
+                    }
                 }
 
                 clock.restart();
@@ -279,49 +258,45 @@ int main() {
 
         scoreText.setString("Score: " + std::to_string(score));
 
-        // Highscore string
-        std::string hs = "Top 5 Scores:\n";
-        for (int i = 0; i < static_cast<int>(highScores.size()); i++)
+        std::string hs = "Top 5:\n";
+        for (int i = 0;i < highScores.size();i++)
             hs += std::to_string(i + 1) + ". " + std::to_string(highScores[i]) + "\n";
 
         highScoreText.setString(hs);
-
-        // Center text
-        sf::FloatRect bounds = highScoreText.getLocalBounds();
-        highScoreText.setOrigin(bounds.width / 2.f, bounds.height / 2.f);
-        highScoreText.setPosition(400.f, 262.f);
+        highScoreText.setPosition(365, 175);
 
         window.clear(sf::Color(30, 30, 30));
 
-        if (showMenu) {
-            menu.draw(window);
-        }
+        if (showMenu) menu.draw(window);
         else if (showHowToPlay) {
             window.draw(gameOverPanel);
-            window.draw(howToPlayTitle);
-            window.draw(howToPlayText);
-            window.draw(howToPlayBackButton);
-            window.draw(howToPlayBackText);
+            window.draw(howTitle);
+            window.draw(howText);
+            window.draw(howBack);
+            window.draw(howBackText);
         }
         else {
-            // Draw game
-            if (!gameOver) {
-                for (auto& segment : snake) {
-                    block.setPosition(static_cast<float>(segment.x * tileSize), static_cast<float>(segment.y * tileSize));
-                    window.draw(block);
-                }
-
-                foodShape.setPosition(static_cast<float>(food.x * tileSize), static_cast<float>(food.y * tileSize));
-                window.draw(foodShape);
-
-                window.draw(scoreText);
+            block.setFillColor(sf::Color::Green);
+            for (auto& s : snake) {
+                block.setPosition(s.x * tileSize, s.y * tileSize);
+                window.draw(block);
             }
 
-            // Draw game over UI
+            block.setFillColor(sf::Color(150, 150, 150));
+            for (auto& w : walls) {
+                block.setPosition(w.x * tileSize, w.y * tileSize);
+                window.draw(block);
+            }
+
+            foodShape.setPosition(food.x * tileSize, food.y * tileSize);
+            window.draw(foodShape);
+
+            window.draw(scoreText);
+
             if (gameOver) {
                 window.draw(gameOverPanel);
-                window.draw(instructionsForR);
                 window.draw(gameOverText);
+                window.draw(instructionsForR);
                 window.draw(highScoreText);
                 window.draw(menuButton);
                 window.draw(menuButtonText);
